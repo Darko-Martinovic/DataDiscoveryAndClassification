@@ -2,11 +2,11 @@
 AS 
 
 SELECT
-    schema_name(O.schema_id) AS schema_name,
-    O.NAME AS table_name,
-    C.NAME AS column_name,
-    information_type,
-    sensitivity_label 
+    schema_name(O.schema_id) AS SchemaName,
+    O.name AS TableName,
+    C.name AS ColumnName,
+    information_type InformationType,
+    sensitivity_label SensitivityLabel 
 FROM
     (
         SELECT

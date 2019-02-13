@@ -8,3 +8,11 @@
 	[InfoTypeId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
+
+GO
+
+CREATE UNIQUE INDEX [IX_InformationType_Name] ON [DC].[InformationType] ([InfoTypeName])
+
+GO
+
+CREATE UNIQUE INDEX [IX_InformationType_Order] ON [DC].[InformationType] ([InfoTypeOrder])

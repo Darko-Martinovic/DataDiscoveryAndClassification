@@ -78,6 +78,7 @@
     <Build Include="Views\GetMatchingColumns.sql" />
     <Build Include="Relations\FK_KeyWords_InformationType.sql" />
     <Build Include="Schema\DC.sql" />
+    <Build Include="Procedures\RemoveClassification.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />

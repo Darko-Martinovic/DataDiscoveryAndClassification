@@ -7,7 +7,7 @@ SELECT DISTINCT
 FROM (SELECT DISTINCT
 		LOWER(name) AS name
 	FROM sys.columns) AS Columns
-INNER JOIN DC.Keywords
+INNER JOIN DC.KeyWords
 	ON (ShouldLike = 0
 			AND name COLLATE Latin1_GENERAL_BIN = KeywordName COLLATE Latin1_GENERAL_BIN)
 		OR (ShouldLike = 1

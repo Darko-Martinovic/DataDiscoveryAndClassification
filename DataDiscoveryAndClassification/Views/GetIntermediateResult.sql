@@ -4,9 +4,9 @@ AS
 WITH IntermediateResults as
 (
 SELECT DISTINCT
-		S.NAME AS SchemaName
-	   ,T.NAME AS TableName
-	   ,C.NAME AS ColumnName
+		S.name AS SchemaName
+	   ,T.name AS TableName
+	   ,C.name AS ColumnName
 	   ,INFOTYPES.InfoTypeId AS InfoTypeId
 	   ,INFOTYPES.InfoTypeName AS InfoTypeName
 	   ,INFOTYPES.InfoTypeOrder AS InfoTypeOrder
@@ -53,6 +53,6 @@ WHERE IR.SchemaName <> 'DC'
 SELECT * FROM Result IR
 WHERE NOT EXISTS
 ( SELECT * FROM DC.GetClassifiedColumns GCC 
-   WHERE IR.SchemaName = GCC.schema_name AND IR.TableName = GCC.table_name AND IR.ColumnName = GCC.column_name
+   WHERE IR.SchemaName = GCC.SchemaName AND IR.TableName = GCC.TableName AND IR.ColumnName = GCC.ColumnName
    ) 
 go
