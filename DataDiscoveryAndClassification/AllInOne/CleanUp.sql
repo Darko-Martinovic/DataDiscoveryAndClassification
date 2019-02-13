@@ -1,4 +1,7 @@
-﻿--== Drop foreign keys ==--
+﻿--== Remove extended properties ==--
+EXEC DC.RemoveClassification
+GO
+--== Drop foreign keys ==--
 IF EXISTS (SELECT * 
   FROM sys.foreign_keys 
    WHERE object_id = OBJECT_ID(N'DC.FK_KeyWords_InformationType')
@@ -30,6 +33,9 @@ GO
 --== Drop the procedure ==--
 IF OBJECT_ID(N'DC.AcceptSuggestions','P') IS NOT NULL 
 	DROP PROCEDURE DC.AcceptSuggestions
+GO
+IF OBJECT_ID(N'DC.RemoveClassification','P') IS NOT NULL 
+	DROP PROCEDURE DC.RemoveClassification
 GO
 
 --== Drop tables ==--
