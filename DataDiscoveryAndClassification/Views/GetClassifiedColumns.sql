@@ -5,8 +5,8 @@ SELECT
     schema_name(O.schema_id) AS SchemaName,
     O.name AS TableName,
     C.name AS ColumnName,
-    information_type InformationType,
-    sensitivity_label SensitivityLabel 
+    CAST(information_type AS VARCHAR(50)) InformationType,
+    CAST(sensitivity_label AS VARCHAR(50)) SensitivityLabel 
 FROM
     (
         SELECT
