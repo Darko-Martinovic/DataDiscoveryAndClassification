@@ -1,0 +1,58 @@
+﻿CREATE VIEW [DC].[GetIntermediateResults]
+AS
+
+WITH IntermediateResults as
+(
+SELECT DISTINCT
+		S.NAME AS SchemaName
+	   ,T.NAME AS TableName
+	   ,C.NAME AS ColumnName
+	   ,INFOTYPES.InfoTypeId AS InfoTypeId
+	   ,INFOTYPES.InfoTypeName AS InfoTypeName
+	   ,INFOTYPES.InfoTypeOrder AS InfoTypeOrder
+	   ,INFOTYPES.RecommendedLabelId AS LabelId
+	   ,SENSITIVITYLABLES.LabelName AS LabelName
+	   ,SENSITIVITYLABLES.LabelOrder AS LabelOrder
+	FROM sys.schemas S
+	INNER JOIN sys.tables T
+		ON S.schema_id = T.schema_id
+		--AND T.is_memory_optimized = 0
+	INNER JOIN sys.columns C
+		ON T.object_id = C.object_id
+	INNER JOIN sys.types TYPE
+		ON C.system_type_id = TYPE.system_type_id
+		AND TYPE.name != 'bit'
+	INNER JOIN DC.GetMatchingColumns MC
+		ON LOWER(C.name) = MC.name
+		AND -- No need to convert MC.name to lower case, as it was already done.
+		NOT (MC.CanBeNumeric = 0
+		AND TYPE.name IN ('bigint', 'bit', 'decimal', 'float', 'int', 'money', 'numeric', 'smallint', 'smallmoney', 'tinyint'))
+	INNER JOIN DC.InformationType INFOTYPES
+		ON MC.InfoTypeId = INFOTYPES.InfoTypeId
+	LEFT JOIN DC.SensitiveName SENSITIVITYLABLES
+		ON INFOTYPES.RecommendedLabelId = SENSITIVITYLABLES.LabelId
+),
+Result As
+(
+SELECT DISTINCT
+    IR.SchemaName AS SchemaName,
+    IR.TableName AS TableName,
+    IR.ColumnName AS ColumnName,
+    IR.InfoTypeId AS InformationTypeId,
+    IR.InfoTypeName AS InformationTypeName,
+    IR.LabelId AS SensitivityLabelId,
+    IR.LabelName AS SensitivityLabelName
+FROM IntermediateResults IR
+    INNER JOIN (SELECT SchemaName, TableName, ColumnName, MIN(InfoTypeOrder) AS MinOrder
+                FROM IntermediateResults
+                GROUP BY SchemaName, TableName, ColumnName) MR
+    ON IR.SchemaName = MR.SchemaName AND IR.TableName = MR.TableName
+    AND IR.ColumnName = MR.ColumnName AND IR.InfoTypeOrder = MR.MinOrder
+WHERE IR.SchemaName <> 'DC'
+)
+SELECT * FROM Result IR
+WHERE NOT EXISTS
+( SELECT * FROM DC.GetClassifiedColumns GCC 
+   WHERE IR.SchemaName = GCC.schema_name AND IR.TableName = GCC.table_name AND IR.ColumnName = GCC.column_name
+   ) 
+go
