@@ -32,13 +32,13 @@ DECLARE @cInformationTypeId AS VARCHAR(50);
 DECLARE @cSensitivityLabel AS VARCHAR(50);
 DECLARE @cSensitivitLableId AS VARCHAR(50);
 DECLARE @sqlString AS NVARCHAR(MAX)
-
+DECLARE @isComputed AS BIT 
 SET @id = 1;
 
 IF OBJECT_ID('tempdb..#TempResult') IS NOT NULL
     DROP TABLE #TempResult;
 SELECT GCC.*,
-    ROW_NUMBER() OVER(ORDER BY SCHEMANAME,
+    ROW_NUMBER() OVER(ORDER BY SchemaName,
                                 TABLENAME,
                                 COLUMNNAME) RN,
     CAST(IT.InfoTypeId AS VARCHAR(50)) InformationTypeId,
@@ -49,7 +49,7 @@ INNER JOIN DC.SensitiveName SN
 	ON GCC.SensitivityLabel = SN.LabelName
 INNER JOIN DC.InformationType IT 
 	ON GCC.InformationType = IT.InfoTypeName
-
+WHERE GCC.IsComputed = 0
 
 
 	         SET @maxid =
@@ -103,19 +103,19 @@ INNER JOIN DC.InformationType IT
 );
 
 
-                 SET @ID = @ID + 1;
-	SET @sqlString = 'ADD SENSITIVITY CLASSIFICATION TO '
-	SET @sqlString =  @sqlstring + @cSchema + '.' + @cTable + '.' + @cColumn
-	SET @sqlString =  @sqlString + ' WITH ( LABEL_ID='''
-	SET @sqlString =  @sqlString + CAST(@cSensitivitLableId AS VARCHAR(50)) + ''''
-    SET @sqlString =  @sqlString + '  ,LABEL='''
-	SET @sqlString =  @sqlString + @cSensitivityLabel + ''''
-    SET @sqlString =  @sqlString + '  ,INFORMATION_TYPE_ID='''
-	SET @sqlString =  @sqlString + @cInformationTypeId + ''''
-    SET @sqlString =  @sqlString + '  ,INFORMATION_TYPE='''
-	SET @sqlString =  @sqlString + @cInformationTypeName + ''''
-	SET @sqlString =  @sqlString + ')'
-	EXECUTE sp_executesql @sqlString;
+                SET @ID = @ID + 1;
+				SET @sqlString = 'ADD SENSITIVITY CLASSIFICATION TO '
+				SET @sqlString =  @sqlstring + @cSchema + '.' + @cTable + '.' + @cColumn
+				SET @sqlString =  @sqlString + ' WITH ( LABEL_ID='''
+				SET @sqlString =  @sqlString + CAST(@cSensitivitLableId AS VARCHAR(50)) + ''''
+				SET @sqlString =  @sqlString + '  ,LABEL='''
+				SET @sqlString =  @sqlString + @cSensitivityLabel + ''''
+				SET @sqlString =  @sqlString + '  ,INFORMATION_TYPE_ID='''
+				SET @sqlString =  @sqlString + @cInformationTypeId + ''''
+				SET @sqlString =  @sqlString + '  ,INFORMATION_TYPE='''
+				SET @sqlString =  @sqlString + @cInformationTypeName + ''''
+				SET @sqlString =  @sqlString + ')'
+				EXECUTE sp_executesql @sqlString;
              END;
 
      END; 
