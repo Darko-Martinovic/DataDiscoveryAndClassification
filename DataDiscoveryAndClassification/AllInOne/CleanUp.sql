@@ -37,6 +37,12 @@ GO
 IF OBJECT_ID(N'DC.RemoveClassification','P') IS NOT NULL 
 	DROP PROCEDURE DC.RemoveClassification
 GO
+IF OBJECT_ID(N'DC.AddSensitivityClassification','P') IS NOT NULL 
+	DROP PROCEDURE DC.AddSensitivityClassification
+GO
+IF OBJECT_ID(N'DC.DropSensitivityClassification','P') IS NOT NULL 
+	DROP PROCEDURE DC.DropSensitivityClassification
+GO
 
 --== Drop tables ==--
 IF object_id(N'DC.SensitiveName', 'U') IS NOT NULL
