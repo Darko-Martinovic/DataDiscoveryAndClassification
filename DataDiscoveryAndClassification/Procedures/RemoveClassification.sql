@@ -43,35 +43,35 @@ AS
 );
                  EXEC sp_dropextendedproperty
                       @name = N'sys_information_type_name',
-                      @level0type = 'schema',
+                      @level0type = N'schema',
                       @level0name = @cSchema,
-                      @level1type = 'table',
+                      @level1type = N'table',
                       @level1name = @cTable,
-                      @level2type = 'column',
+                      @level2type = N'column',
                       @level2name = @cColumn;
                  EXEC sp_dropextendedproperty
                       @name = N'sys_information_type_id',
-                      @level0type = 'schema',
+                      @level0type = N'schema',
                       @level0name = @cSchema,
-                      @level1type = 'table',
+                      @level1type = N'table',
                       @level1name = @cTable,
-                      @level2type = 'column',
+                      @level2type = N'column',
                       @level2name = @cColumn;
                  EXEC sp_dropextendedproperty
                       @name = N'sys_sensitivity_label_name',
-                      @level0type = 'schema',
+                      @level0type = N'schema',
                       @level0name = @cSchema,
-                      @level1type = 'table',
+                      @level1type = N'table',
                       @level1name = @cTable,
-                      @level2type = 'column',
+                      @level2type = N'column',
                       @level2name = @cColumn;
                  EXEC sp_dropextendedproperty
                       @name = N'sys_sensitivity_label_id',
-                      @level0type = 'schema',
+                      @level0type = N'schema',
                       @level0name = @cSchema,
-                      @level1type = 'table',
+                      @level1type = N'table',
                       @level1name = @cTable,
-                      @level2type = 'column',
+                      @level2type = N'column',
                       @level2name = @cColumn;
                  SET @ID = @ID + 1;
              END;
