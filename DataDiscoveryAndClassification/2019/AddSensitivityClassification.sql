@@ -61,7 +61,7 @@ INNER JOIN DC.InformationType IT
              BEGIN
                  SET @cschema =
 (
-    SELECT TOP 1 SCHEMAname
+    SELECT TOP 1 SchemaName
     FROM         #TempResult
     WHERE        rn = @id
 );
