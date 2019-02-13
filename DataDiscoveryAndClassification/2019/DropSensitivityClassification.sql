@@ -39,6 +39,7 @@ SELECT GCC.*,
                                 COLUMNNAME) RN
 INTO #TempResult
 FROM   [DC].[GetClassifiedColumns] GCC
+WHERE IsComputed = 0
 
 
 
