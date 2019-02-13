@@ -41,8 +41,8 @@ SELECT GCC.*,
     ROW_NUMBER() OVER(ORDER BY SCHEMANAME,
                                 TABLENAME,
                                 COLUMNNAME) RN,
-    CAST(IT.InfoTypeId AS VARCHAR(50)) InfoTypeId,
-	CAST(SN.LabelId AS VARCHAR(50)) LabelId
+    CAST(IT.InfoTypeId AS VARCHAR(50)) InformationTypeId,
+	CAST(SN.LabelId AS VARCHAR(50)) SensitivityLabelId
 INTO #TempResult
 FROM   [DC].[GetClassifiedColumns] GCC
 INNER JOIN DC.SensitiveName SN 
@@ -91,7 +91,7 @@ INNER JOIN DC.InformationType IT
 );
                  SET @cSensitivityLabel =
 (
-    SELECT TOP 1 SensitivityLabelName
+    SELECT TOP 1 SensitivityLabel
     FROM         #TempResult
     WHERE        rn = @id
 );
@@ -106,13 +106,13 @@ INNER JOIN DC.InformationType IT
                  SET @ID = @ID + 1;
 	SET @sqlString = 'ADD SENSITIVITY CLASSIFICATION TO '
 	SET @sqlString =  @sqlstring + @cSchema + '.' + @cTable + '.' + @cColumn
-	SET @sqlString =  @sqlString + 'WITH ( LABEL_ID='''
+	SET @sqlString =  @sqlString + ' WITH ( LABEL_ID='''
 	SET @sqlString =  @sqlString + CAST(@cSensitivitLableId AS VARCHAR(50)) + ''''
-    SET @sqlString =  @sqlString + '  LABEL='''
+    SET @sqlString =  @sqlString + '  ,LABEL='''
 	SET @sqlString =  @sqlString + @cSensitivityLabel + ''''
-    SET @sqlString =  @sqlString + '  INFORMATION_TYPE_ID='''
+    SET @sqlString =  @sqlString + '  ,INFORMATION_TYPE_ID='''
 	SET @sqlString =  @sqlString + @cInformationTypeId + ''''
-    SET @sqlString =  @sqlString + '  INFORMATION_TYPE='''
+    SET @sqlString =  @sqlString + '  ,INFORMATION_TYPE='''
 	SET @sqlString =  @sqlString + @cInformationTypeName + ''''
 	SET @sqlString =  @sqlString + ')'
 	EXECUTE sp_executesql @sqlString;
