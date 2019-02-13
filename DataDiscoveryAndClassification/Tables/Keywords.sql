@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [DC].[KeyWords](
-	[KeywordName] [varchar](50) NOT NULL,
+	[KeywordName] [varchar](50) COLLATE  SQL_Latin1_General_CP1_CI_AS NOT NULL,
 	[CanBeNumeric] [bit] NOT NULL,
 	[InfoTypeId] [uniqueidentifier] NOT NULL,
 	[ShouldLike] [bit] NOT NULL,
