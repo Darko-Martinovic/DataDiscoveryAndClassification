@@ -2,7 +2,7 @@
 AS
      BEGIN
          SET NOCOUNT ON;
-         DECLARE @id AS INT= 1;
+         DECLARE @id AS INT;
          DECLARE @maxId AS INT;
          DECLARE @cSchema AS SYSNAME;
          DECLARE @cTable AS SYSNAME;
@@ -11,6 +11,7 @@ AS
          DECLARE @cInformationTypeId AS VARCHAR(50);
          DECLARE @cSensitivityLabel AS VARCHAR(50);
          DECLARE @cSensitivitLableId AS VARCHAR(50);
+		 SET @id = 1;
          IF OBJECT_ID('tempdb..#TempResult') IS NOT NULL
              DROP TABLE #TempResult;
          SELECT *,
