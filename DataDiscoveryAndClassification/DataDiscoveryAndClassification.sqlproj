@@ -81,6 +81,7 @@
     <Build Include="Schema\DC.sql" />
     <Build Include="Procedures\RemoveClassification.sql" />
     <Build Include="2019\AddSensitivityClassification.sql" />
+    <Build Include="2019\DropSensitivityClassification.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />
