@@ -42,7 +42,7 @@ AS
     WHERE        rn = @id
 );
                  EXEC sp_dropextendedproperty
-                      @name = 'sys_information_type_name',
+                      @name = N'sys_information_type_name',
                       @level0type = 'schema',
                       @level0name = @cSchema,
                       @level1type = 'table',
@@ -50,7 +50,7 @@ AS
                       @level2type = 'column',
                       @level2name = @cColumn;
                  EXEC sp_dropextendedproperty
-                      @name = 'sys_information_type_id',
+                      @name = N'sys_information_type_id',
                       @level0type = 'schema',
                       @level0name = @cSchema,
                       @level1type = 'table',
@@ -58,7 +58,7 @@ AS
                       @level2type = 'column',
                       @level2name = @cColumn;
                  EXEC sp_dropextendedproperty
-                      @name = 'sys_sensitivity_label_name',
+                      @name = N'sys_sensitivity_label_name',
                       @level0type = 'schema',
                       @level0name = @cSchema,
                       @level1type = 'table',
@@ -66,7 +66,7 @@ AS
                       @level2type = 'column',
                       @level2name = @cColumn;
                  EXEC sp_dropextendedproperty
-                      @name = 'sys_sensitivity_label_id',
+                      @name = N'sys_sensitivity_label_id',
                       @level0type = 'schema',
                       @level0name = @cSchema,
                       @level1type = 'table',
