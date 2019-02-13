@@ -66,6 +66,7 @@
     <Folder Include="PostDeploy" />
     <Folder Include="AllInOne" />
     <Folder Include="Schema" />
+    <Folder Include="2019" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Procedures\AcceptSuggestions.sql" />
@@ -79,6 +80,7 @@
     <Build Include="Relations\FK_KeyWords_InformationType.sql" />
     <Build Include="Schema\DC.sql" />
     <Build Include="Procedures\RemoveClassification.sql" />
+    <Build Include="2019\AddSensitivityClassification.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />
