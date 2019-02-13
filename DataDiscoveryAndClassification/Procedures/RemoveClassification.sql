@@ -42,37 +42,37 @@ AS
     WHERE        rn = @id
 );
                  EXEC sp_dropextendedproperty
+                      @name = 'sys_information_type_name',
                       @level0type = 'schema',
                       @level0name = @cSchema,
                       @level1type = 'table',
                       @level1name = @cTable,
                       @level2type = 'column',
-                      @level2name = @cColumn,
-                      @name = 'sys_information_type_name';
+                      @level2name = @cColumn;
                  EXEC sp_dropextendedproperty
+                      @name = 'sys_information_type_id',
                       @level0type = 'schema',
                       @level0name = @cSchema,
                       @level1type = 'table',
                       @level1name = @cTable,
                       @level2type = 'column',
-                      @level2name = @cColumn,
-                      @name = 'sys_information_type_id';
+                      @level2name = @cColumn;
                  EXEC sp_dropextendedproperty
+                      @name = 'sys_sensitivity_label_name',
                       @level0type = 'schema',
                       @level0name = @cSchema,
                       @level1type = 'table',
                       @level1name = @cTable,
                       @level2type = 'column',
-                      @level2name = @cColumn,
-                      @name = 'sys_sensitivity_label_name';
+                      @level2name = @cColumn;
                  EXEC sp_dropextendedproperty
+                      @name = 'sys_sensitivity_label_id',
                       @level0type = 'schema',
                       @level0name = @cSchema,
                       @level1type = 'table',
                       @level1name = @cTable,
                       @level2type = 'column',
-                      @level2name = @cColumn,
-                      @name = 'sys_sensitivity_label_id';
+                      @level2name = @cColumn;
                  SET @ID = @ID + 1;
              END;
      END;
