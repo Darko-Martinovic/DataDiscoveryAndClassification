@@ -41,8 +41,8 @@ SELECT GCC.*,
     ROW_NUMBER() OVER(ORDER BY SCHEMANAME,
                                 TABLENAME,
                                 COLUMNNAME) RN,
-    IT.InfoTypeId,
-	SN.LabelId
+    CAST(IT.InfoTypeId AS VARCHAR(50)) InfoTypeId,
+	CAST(SN.LabelId AS VARCHAR(50)) LabelId
 INTO #TempResult
 FROM   [DC].[GetClassifiedColumns] GCC
 INNER JOIN DC.SensitiveName SN 
@@ -79,7 +79,7 @@ INNER JOIN DC.InformationType IT
 );
                  SET @cInformationTypeName =
 (
-    SELECT TOP 1 InformationTypeName
+    SELECT TOP 1 InformationType
     FROM         #TempResult
     WHERE        rn = @id
 );
