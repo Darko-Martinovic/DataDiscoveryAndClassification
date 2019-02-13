@@ -1,4 +1,7 @@
-﻿--== Create the schema
+﻿PRINT N'Creating [DC]...';
+
+
+GO
 CREATE SCHEMA [DC]
     AUTHORIZATION [dbo];
 
@@ -129,8 +132,9 @@ SELECT
     schema_name(O.schema_id) AS SchemaName,
     O.name AS TableName,
     C.name AS ColumnName,
-    information_type InformationType,
-    sensitivity_label SensitivityLabel 
+    CAST(information_type AS VARCHAR(50)) InformationType,
+    CAST(sensitivity_label AS VARCHAR(50)) SensitivityLabel,
+	c.is_computed IsComputed
 FROM
     (
         SELECT
@@ -145,7 +149,7 @@ FROM
                 minor_id,
                 value AS information_type 
             FROM sys.extended_properties 
-            WHERE NAME = 'sys_information_type_name'
+            WHERE name = 'sys_information_type_name'
         ) IT 
         FULL OUTER JOIN
         (
@@ -154,7 +158,7 @@ FROM
                 minor_id,
                 value AS sensitivity_label 
             FROM sys.extended_properties 
-            WHERE NAME = 'sys_sensitivity_label_name'
+            WHERE name = 'sys_sensitivity_label_name'
         ) L 
         ON IT.major_id = L.major_id AND IT.minor_id = L.minor_id
     ) EP
@@ -422,6 +426,220 @@ AS
                  SET @ID = @ID + 1;
              END;
      END;
+GO
+PRINT N'Creating [DC].[AddSensitivityClassification]...';
+
+
+GO
+CREATE PROCEDURE [DC].[AddSensitivityClassification]
+AS
+BEGIN
+SET NOCOUNT ON;
+DECLARE @version AS VARCHAR(128)
+SET @version = 
+  CASE 
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '8%' THEN 'SQL2000'
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '9%' THEN 'SQL2005'
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '10.0%' THEN 'SQL2008'
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '10.5%' THEN 'SQL2008 R2'
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '11%' THEN 'SQL2012'
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '12%' THEN 'SQL2014'
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '13%' THEN 'SQL2016'     
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '14%' THEN 'SQL2017' 
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '15%' THEN 'SQL2019' 
+     ELSE 'unknown'
+  END 
+IF ( @version != 'SQL2019')
+BEGIN
+PRINT 'Only for SQL2019';
+RETURN 0
+END
+
+DECLARE @id AS INT;
+DECLARE @maxId AS INT;
+DECLARE @cSchema AS SYSNAME;
+DECLARE @cTable AS SYSNAME;
+DECLARE @cColumn AS SYSNAME;
+DECLARE @cInformationTypeName AS VARCHAR(50);
+DECLARE @cInformationTypeId AS VARCHAR(50);
+DECLARE @cSensitivityLabel AS VARCHAR(50);
+DECLARE @cSensitivitLableId AS VARCHAR(50);
+DECLARE @sqlString AS NVARCHAR(MAX)
+SET @id = 1;
+
+IF OBJECT_ID('tempdb..#TempResult') IS NOT NULL
+    DROP TABLE #TempResult;
+SELECT GCC.*,
+    ROW_NUMBER() OVER(ORDER BY SchemaName,
+                                TABLENAME,
+                                COLUMNNAME) RN,
+    CAST(IT.InfoTypeId AS VARCHAR(50)) InformationTypeId,
+	CAST(SN.LabelId AS VARCHAR(50)) SensitivityLabelId
+INTO #TempResult
+FROM   [DC].[GetClassifiedColumns] GCC
+INNER JOIN DC.SensitiveName SN 
+	ON GCC.SensitivityLabel = SN.LabelName
+INNER JOIN DC.InformationType IT 
+	ON GCC.InformationType = IT.InfoTypeName
+WHERE GCC.IsComputed = 0
+
+
+	         SET @maxid =
+(
+    SELECT MAX(RN)
+    FROM   #TempResult
+);
+         WHILE @maxId >= @Id
+             BEGIN
+                 SET @cschema =
+(
+    SELECT TOP 1 SchemaName
+    FROM         #TempResult
+    WHERE        rn = @id
+);
+                 SET @cTable =
+(
+    SELECT TOP 1 TableName
+    FROM         #TempResult
+    WHERE        rn = @id
+);
+                 SET @cColumn =
+(
+    SELECT TOP 1 ColumnName
+    FROM         #TempResult
+    WHERE        rn = @id
+);
+                 SET @cInformationTypeName =
+(
+    SELECT TOP 1 InformationType
+    FROM         #TempResult
+    WHERE        rn = @id
+);
+                 SET @cInformationTypeId =
+(
+    SELECT TOP 1 InformationTypeId
+    FROM         #TempResult
+    WHERE        rn = @id
+);
+                 SET @cSensitivityLabel =
+(
+    SELECT TOP 1 SensitivityLabel
+    FROM         #TempResult
+    WHERE        rn = @id
+);
+                 SET @cSensitivitLableId =
+(
+    SELECT TOP 1 SensitivityLabelId
+    FROM         #TempResult
+    WHERE        rn = @id
+);
+
+
+                SET @ID = @ID + 1;
+				SET @sqlString = 'ADD SENSITIVITY CLASSIFICATION TO '
+				SET @sqlString =  @sqlstring + @cSchema + '.' + @cTable + '.' + @cColumn
+				SET @sqlString =  @sqlString + ' WITH ( LABEL_ID='''
+				SET @sqlString =  @sqlString + CAST(@cSensitivitLableId AS VARCHAR(50)) + ''''
+				SET @sqlString =  @sqlString + '  ,LABEL='''
+				SET @sqlString =  @sqlString + @cSensitivityLabel + ''''
+				SET @sqlString =  @sqlString + '  ,INFORMATION_TYPE_ID='''
+				SET @sqlString =  @sqlString + @cInformationTypeId + ''''
+				SET @sqlString =  @sqlString + '  ,INFORMATION_TYPE='''
+				SET @sqlString =  @sqlString + @cInformationTypeName + ''''
+				SET @sqlString =  @sqlString + ')'
+				EXECUTE sp_executesql @sqlString;
+             END;
+
+     END; 
+
+
+RETURN 0
+GO
+PRINT N'Creating [DC].[DropSensitivityClassification]...';
+
+
+GO
+CREATE PROCEDURE [DC].[DropSensitivityClassification]
+AS
+BEGIN
+SET NOCOUNT ON;
+DECLARE @version AS VARCHAR(128)
+SET @version = 
+  CASE 
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '8%' THEN 'SQL2000'
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '9%' THEN 'SQL2005'
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '10.0%' THEN 'SQL2008'
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '10.5%' THEN 'SQL2008 R2'
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '11%' THEN 'SQL2012'
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '12%' THEN 'SQL2014'
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '13%' THEN 'SQL2016'     
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '14%' THEN 'SQL2017' 
+     WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '15%' THEN 'SQL2019' 
+     ELSE 'unknown'
+  END 
+IF ( @version != 'SQL2019')
+BEGIN
+PRINT 'Only for SQL2019';
+RETURN 0
+END
+
+DECLARE @id AS INT;
+DECLARE @maxId AS INT;
+DECLARE @cSchema AS SYSNAME;
+DECLARE @cTable AS SYSNAME;
+DECLARE @cColumn AS SYSNAME;
+DECLARE @sqlString AS NVARCHAR(MAX)
+
+SET @id = 1;
+
+IF OBJECT_ID('tempdb..#TempResult') IS NOT NULL
+    DROP TABLE #TempResult;
+SELECT GCC.*,
+    ROW_NUMBER() OVER(ORDER BY SchemaName,
+                                TABLENAME,
+                                COLUMNNAME) RN
+INTO #TempResult
+FROM   [DC].[GetClassifiedColumns] GCC
+WHERE IsComputed = 0
+
+
+
+	         SET @maxid =
+(
+    SELECT MAX(RN)
+    FROM   #TempResult
+);
+         WHILE @maxId >= @Id
+             BEGIN
+                 SET @cschema =
+(
+    SELECT TOP 1 SchemaName
+    FROM         #TempResult
+    WHERE        rn = @id
+);
+                 SET @cTable =
+(
+    SELECT TOP 1 TableName
+    FROM         #TempResult
+    WHERE        rn = @id
+);
+                 SET @cColumn =
+(
+    SELECT TOP 1 ColumnName
+    FROM         #TempResult
+    WHERE        rn = @id
+);
+
+                SET @ID = @ID + 1;
+				SET @sqlString = 'DROP SENSITIVITY CLASSIFICATION FROM '
+				SET @sqlString =  @sqlstring + @cSchema + '.' + @cTable + '.' + @cColumn
+				EXECUTE sp_executesql @sqlString;
+             END;
+
+     END; 
+
+
+RETURN 0
 GO
 /*
 Post-Deployment Script Template							
@@ -1169,8 +1387,6 @@ GO
 
 GO
 PRINT N'Checking existing data against newly created constraints';
-
-
 
 
 GO
