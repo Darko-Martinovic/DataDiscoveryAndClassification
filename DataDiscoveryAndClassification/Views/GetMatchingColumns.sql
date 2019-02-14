@@ -4,6 +4,7 @@ SELECT DISTINCT
 	name
    ,CanBeNumeric
    ,InfoTypeId
+   ,KeyWordName
 FROM (SELECT DISTINCT
 		LOWER(name) AS name
 	FROM sys.columns) AS Columns
