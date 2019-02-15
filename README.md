@@ -19,6 +19,7 @@ View Name                                        | Description
 Stored Procedure Name                            | Description
 ------------------------------------------------ |-----------------------------------------------------------------------------------
 [DC].[Accept Suggestion]                         | Joins sys.tables with DC.KeyWords in order to produce the first intermediate result.
-[DC].[GetInterMeddiateResult]                    | Cleans up the matching columns and apply additional attributes.
-DC.GetClassifiedColumns                          | Get a list of columns that are considered to be sensitive. 
+[DC].[Remove Classification]                     | Delete extended properties for those columns that are marked as classified.
+[DC].[AddSensitivityClassification]              | Make a bridge to SQL Server 2019 defined view sys.sensitivity_classifications
+[DC].[DropSensitivityClassification]             | Remove records from SQL Server 2019 defined view sys.sensitivity_classifications
 
