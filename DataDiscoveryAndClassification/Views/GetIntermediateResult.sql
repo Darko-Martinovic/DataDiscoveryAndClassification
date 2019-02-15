@@ -24,7 +24,7 @@ SELECT DISTINCT
 		AND TYPE.name != 'bit'
 	INNER JOIN DC.GetMatchingColumns MC
 		ON LOWER(C.name) = MC.name
-		AND -- No need to convert MC.name to lower case, as it was already done.
+		AND -- That is the way how Microsoft get rid of columns such as AddressId. 
 		NOT (MC.CanBeNumeric = 0
 		AND TYPE.name IN ('bigint', 'bit', 'decimal', 'float', 'int', 'money', 'numeric', 'smallint', 'smallmoney', 'tinyint'))
 	INNER JOIN DC.InformationType INFOTYPES
@@ -48,7 +48,7 @@ FROM IntermediateResults IR
                 GROUP BY SchemaName, TableName, ColumnName) MR
     ON IR.SchemaName = MR.SchemaName AND IR.TableName = MR.TableName
     AND IR.ColumnName = MR.ColumnName AND IR.InfoTypeOrder = MR.MinOrder
-WHERE IR.SchemaName <> 'DC'
+WHERE IR.SchemaName <> 'DC' --Exclude the DC schema
 )
 SELECT * FROM Result IR
 WHERE NOT EXISTS
