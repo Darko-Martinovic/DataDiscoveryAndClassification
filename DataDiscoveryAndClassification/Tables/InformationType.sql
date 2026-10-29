@@ -1,18 +1,14 @@
-﻿CREATE TABLE [DC].[InformationType](
-	[InfoTypeId] [uniqueidentifier] NOT NULL,
-	[InfoTypeName] [varchar](30) NOT NULL,
-	[InfoTypeOrder] [int] NOT NULL,
-	[RecommendedLabelId] [uniqueidentifier] NULL,
- CONSTRAINT [PK__Informat__E94AB524B904E7BD] PRIMARY KEY CLUSTERED 
+-- Information types: what kind of data a column holds, and the label recommended for it.
+-- When a column matches keywords of several types, the type with the lowest InfoTypeOrder wins.
+CREATE TABLE [DC].[InformationType]
 (
-	[InfoTypeId] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-
+    [InfoTypeId]         UNIQUEIDENTIFIER NOT NULL,
+    [InfoTypeName]       NVARCHAR (128)   NOT NULL,
+    [InfoTypeOrder]      INT              NOT NULL,
+    [RecommendedLabelId] UNIQUEIDENTIFIER NULL,
+    CONSTRAINT [PK_InformationType] PRIMARY KEY CLUSTERED ([InfoTypeId]),
+    CONSTRAINT [FK_InformationType_SensitiveName] FOREIGN KEY ([RecommendedLabelId]) REFERENCES [DC].[SensitiveName] ([LabelId])
+);
 GO
 
-CREATE UNIQUE INDEX [IX_InformationType_Name] ON [DC].[InformationType] ([InfoTypeName])
-
-GO
-
-CREATE UNIQUE INDEX [IX_InformationType_Order] ON [DC].[InformationType] ([InfoTypeOrder])
+CREATE UNIQUE INDEX [IX_InformationType_InfoTypeName] ON [DC].[InformationType] ([InfoTypeName]);

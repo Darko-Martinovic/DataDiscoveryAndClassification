@@ -1,41 +1,24 @@
-﻿CREATE VIEW DC.GetClassifiedColumns
-AS 
-
+-- Every classified column, as SQL Server stores it in sys.sensitivity_classifications.
+-- Reading it needs the VIEW ANY SENSITIVITY CLASSIFICATION permission. The casts are for
+-- SQL Server 2019, where the catalog view returns these columns as sql_variant.
+CREATE VIEW [DC].[GetClassifiedColumns]
+AS
 SELECT
-    schema_name(O.schema_id) AS SchemaName,
-    O.name AS TableName,
-    C.name AS ColumnName,
-    CAST(information_type AS VARCHAR(50)) InformationType,
-    CAST(sensitivity_label AS VARCHAR(50)) SensitivityLabel,
-	c.is_computed IsComputed
-FROM
-    (
-        SELECT
-            IT.major_id,
-            IT.minor_id,
-            IT.information_type,
-            L.sensitivity_label 
-        FROM
-        (
-            SELECT
-                major_id,
-                minor_id,
-                value AS information_type 
-            FROM sys.extended_properties 
-            WHERE name = 'sys_information_type_name'
-        ) IT 
-        FULL OUTER JOIN
-        (
-            SELECT
-                major_id,
-                minor_id,
-                value AS sensitivity_label 
-            FROM sys.extended_properties 
-            WHERE name = 'sys_sensitivity_label_name'
-        ) L 
-        ON IT.major_id = L.major_id AND IT.minor_id = L.minor_id
-    ) EP
-    JOIN sys.objects O
-    ON  EP.major_id = O.object_id 
-    JOIN sys.columns C 
-    ON  EP.major_id = C.object_id AND EP.minor_id = C.column_id
+    SCHEMA_NAME(O.schema_id)                             AS SchemaName,
+    O.name                                               AS TableName,
+    C.name                                               AS ColumnName,
+    CAST(SC.information_type AS NVARCHAR (128))          AS InformationType,
+    CAST(SC.information_type_id AS NVARCHAR (128))       AS InformationTypeId,
+    CAST(SC.label AS NVARCHAR (128))                     AS SensitivityLabel,
+    CAST(SC.label_id AS NVARCHAR (128))                  AS SensitivityLabelId,
+    CAST(SC.rank_desc AS NVARCHAR (10))                  AS SensitivityRank,
+    CAST(CASE WHEN T.temporal_type = 1 THEN 1 ELSE 0 END AS BIT) AS IsHistoryTable
+FROM sys.sensitivity_classifications AS SC
+    INNER JOIN sys.objects AS O
+        ON O.object_id = SC.major_id
+    INNER JOIN sys.columns AS C
+        ON C.object_id = SC.major_id
+        AND C.column_id = SC.minor_id
+    LEFT JOIN sys.tables AS T
+        ON T.object_id = O.object_id
+WHERE SC.class = 1;

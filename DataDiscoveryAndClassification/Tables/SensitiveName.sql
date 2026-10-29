@@ -1,17 +1,13 @@
-﻿CREATE TABLE [DC].[SensitiveName](
-	[LabelId] [uniqueidentifier] NOT NULL,
-	[LabelName] [varchar](30) NOT NULL,
-	[LabelOrder] [int] NOT NULL,
- CONSTRAINT [PK__Sensitiv__397E2BC37BCB31E5] PRIMARY KEY CLUSTERED 
+-- Sensitivity labels: how sensitive the data in a column is.
+CREATE TABLE [DC].[SensitiveName]
 (
-	[LabelId] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-
+    [LabelId]    UNIQUEIDENTIFIER NOT NULL,
+    [LabelName]  NVARCHAR (128)   NOT NULL,
+    [LabelOrder] INT              NOT NULL,
+    [LabelRank]  NVARCHAR (10)    NOT NULL CONSTRAINT [DF_SensitiveName_LabelRank] DEFAULT (N'NONE'),
+    CONSTRAINT [PK_SensitiveName] PRIMARY KEY CLUSTERED ([LabelId]),
+    CONSTRAINT [CK_SensitiveName_LabelRank] CHECK ([LabelRank] IN (N'NONE', N'LOW', N'MEDIUM', N'HIGH', N'CRITICAL'))
+);
 GO
 
-CREATE UNIQUE INDEX [IX_SensitiveName_LabelName] ON [DC].[SensitiveName] ([LabelName])
-
-GO
-
-CREATE INDEX [IX_SensitiveName_LabelOrder] ON [DC].[SensitiveName] ([LabelOrder])
+CREATE UNIQUE INDEX [IX_SensitiveName_LabelName] ON [DC].[SensitiveName] ([LabelName]);
